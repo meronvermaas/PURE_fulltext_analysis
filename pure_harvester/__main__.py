@@ -3,8 +3,8 @@ import json
 import click
 import os
 
-from outputs_api import get_outputs
-from datasets_api import get_dataset_meta
+from pure_harvester.outputs_api import get_outputs
+from pure_harvester.datasets_api import get_dataset_meta
 
 
 @click.command()
