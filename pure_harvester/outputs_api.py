@@ -24,6 +24,10 @@ def get_outputs(download, download_path, api_key, published_after='2022-01-01', 
                             req_url = requests.get(eversion['file']['fileURL'])
                             pub_path = os.path.join(download_path, item['uuid'])
                             os.makedirs(pub_path, exist_ok=True)
+                            # check length path + filename, should not exceed 255 characters
+                            path_length = len(f'{os.getcwd()}/{pub_path}/{eversion["file"]["fileName"]}')
+                            if path_length > 255:
+                                eversion["file"]["fileName"] = eversion["file"]["fileName"][path_length-255:]
                             # download file
                             with open(f'{pub_path}/{eversion["file"]["fileName"]}', 'wb') as f:
                                 f.write(req_url.content)
