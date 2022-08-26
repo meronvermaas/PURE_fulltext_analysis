@@ -1,46 +1,62 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-import re
 import numpy as np
+from nltk.tokenize import word_tokenize
+from nltk.text import Text
 
-
-# TODO: add dataset doi to search terms
-#       add year grouping
-#       add affiliation grouping
 
 def get_text_keywords(full_text_papers, keywords):
-    # regular expression AND
-    base = r'{}'
-    expr = '(?=.*{})'
+
+    # fill papers that were not converted with '' so tokenize works for all rows
+    full_text_papers.paper_text = full_text_papers.paper_text.fillna('')
+    # tokenize all texts first (split in single words and remove punctuation)
+    full_text_papers['paper_text_tokenized'] = full_text_papers['paper_text'].apply(word_tokenize)
     # loop over the list of keyword groups
     for grouped_keywords in keywords:
         # loop over the keywords in the groups
         for keyword in grouped_keywords:
-            # add column for keyword with bool if the word is in the paper
-            if isinstance(keyword, str):
-                full_text_papers[keyword] = full_text_papers.paper_text.str.contains(re.escape(keyword), case=False)
-                # not very nice, but works. Take all the version control keywords (assuming GitHub is always there)
-                # and output the urls
-                if 'github' in grouped_keywords:
-                    for idx, split_text in enumerate(full_text_papers.paper_text.str.split(' ')):
+            # create new column
+            if isinstance(keyword, list):
+                if '&'.join(keyword) not in full_text_papers.columns:
+                    column_name = '&'.join(keyword)
+                    full_text_papers[column_name] = False
+            else:
+                if keyword not in full_text_papers.columns:
+                    column_name = keyword
+                    full_text_papers[column_name] = False
+            # loop over each paper
+            for idx in range(len(full_text_papers.paper_text_tokenized)):
+                # For version control, often links are reported which are missed by nltk concordance,
+                # so it is addressed in the else statement.
+                if 'github' not in grouped_keywords:
+                    text = Text(full_text_papers['paper_text_tokenized'][idx])
+                    if isinstance(keyword, str):
+                        keyword_occurrence = text.concordance_list(keyword.split())
+                        if len(keyword_occurrence) > 0:
+                            full_text_papers.loc[idx, column_name] = True
+                    elif isinstance(keyword, list):
+                        kw_bool = []
+                        for kw in keyword:
+                            keyword_occurrence = text.concordance_list(kw.split())
+                            kw_bool.append(len(keyword_occurrence))
+                        if all(kw_bool):
+                            full_text_papers.loc[idx, column_name] = True
+                        # TODO export the context around the found keywords
+                        #  (already saved in keyword_occurrence list for the str case)
+                # Search a bit broader with "substring in string" in the case of version control keywords
+                else:
+                    if any(keyword.lower() in token.lower() for token in full_text_papers['paper_text_tokenized'][idx]):
+                        full_text_papers.loc[idx, column_name] = True
+                        # search for links/presence of version control
+                        # by checking .VERSIONCONTROL. and //VERSIONCONTROL using IN
                         url_idx = 0
-                        # check if text to go through exists
-                        if not isinstance(split_text, list):
-                            continue
-                        else:
-                            for words in split_text:
-                                if keyword+'.' in words.lower():
-                                    newcol_name = keyword + '_url_' + str(url_idx)
-                                    if newcol_name not in full_text_papers.columns:
-                                        full_text_papers[newcol_name] = np.nan
-                                    full_text_papers.loc[idx, newcol_name] = words
-                                    url_idx += 1
-            # add column for multiple keywords that all are in the paper (column name is space separated combination
-            # of keywords)
-            elif isinstance(keyword, list):
-                contains_keywords = base.format(''.join(expr.format(re.escape(word)) for word in keyword))
-                full_text_papers['&'.join(keyword)] = \
-                    full_text_papers.paper_text.str.contains(contains_keywords, case=False)
+                        for token in full_text_papers['paper_text_tokenized'][idx]:
+                            if ('.' + keyword + '.' in token) or ('//' + keyword in token):
+                                newcol_name = column_name + '_url_' + str(url_idx)
+                                if newcol_name not in full_text_papers.columns:
+                                    full_text_papers[newcol_name] = np.nan
+                                full_text_papers.loc[idx, newcol_name] = token
+                                url_idx += 1
 
     # Check if papers with data_doi metadata is mentioned in paper
     full_text_papers['data_doi_in_text'] = False
@@ -52,7 +68,6 @@ def get_text_keywords(full_text_papers, keywords):
     full_text_papers.drop('paper_text', axis=1, inplace=True)
 
     return full_text_papers
-
 
 def plot_keywords(outdir, keywords_stats, keywords, grouping_list):
     # create dataframe with number of papers where keyword is mentioned for each group of keywords
