@@ -6,3 +6,4 @@ pdfplumber~=0.7.4
 pikepdf~=5.4.2
 numpy~=1.23.1
 matplotlib~=3.5.2
+nltk~=3.7
