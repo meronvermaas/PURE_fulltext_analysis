@@ -17,12 +17,12 @@ from pure_scraper.pdf_scraper import plot_keywords
 @click.argument('outdir', default='papertext_output')
 @click.argument('keywords', type=list,
                 default=[('github', 'gitlab', 'bitbucket', 'subversion', 'apache allura', 'gogs', 'gitea'),
-                         ('r core team', 'r-project', 'python', 'html', 'css', 'java', 'javascript', 'swift', 'c#',
+                         ('r core team', 'r-project', 'python', 'html', 'css', 'java', 'javascript', 'swift', 'c #',
                           'c++', 'golang', 'php', 'typescript', 'stata', 'spss', 'scala', 'shell', 'powershell', 'perl',
                           'haskell', 'kotlin', 'visual basic', 'sql', 'matlab', 'excel', ['lua', 'programming'],
                           'ruby', ['bezanson', 'julia'], 'arcgis'),
-                         ('bazis', 'hpc', 'high-performance computing', ['snellius', 'surf'], ['lisa', 'surf'],
-                          'peter stol', 'p. stol', 'itvo', 'diebert van rhijn', 'd. van rhijn', 'high-end computing')])
+                         ('bazis', ' hpc ', 'high-performance computing', ['snellius', 'surf'], ['lisa', 'surf'],
+                          'peter stol', 'p. stol', ' itvo ', 'diebert van rhijn', 'd. van rhijn', 'high-end computing')])
 def pure_text(**kwargs):
     if 'outdir' in kwargs:
         if not os.path.exists(kwargs.get('outdir')):
