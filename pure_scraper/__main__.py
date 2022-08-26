@@ -21,8 +21,8 @@ from pure_scraper.pdf_scraper import plot_keywords
                           'c++', 'golang', 'php', 'typescript', 'stata', 'spss', 'scala', 'shell', 'powershell', 'perl',
                           'haskell', 'kotlin', 'visual basic', 'sql', 'matlab', 'excel', ['lua', 'programming'],
                           'ruby', ['bezanson', 'julia'], 'arcgis'),
-                         ('bazis', ' hpc ', 'high-performance computing', ['snellius', 'surf'], ['lisa', 'surf'],
-                          'peter stol', 'p. stol', ' itvo ', 'diebert van rhijn', 'd. van rhijn', 'high-end computing')])
+                         ('bazis', 'hpc', 'high-performance computing', ['snellius', 'surf'], ['lisa', 'surf'],
+                          'peter stol', 'p. stol', 'itvo', 'diebert van rhijn', 'd. van rhijn', 'high-end computing')])
 def pure_text(**kwargs):
     if 'outdir' in kwargs:
         if not os.path.exists(kwargs.get('outdir')):
