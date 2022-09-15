@@ -34,12 +34,16 @@ def get_outputs(download, download_path, api_key, published_after='2022-01-01', 
                         # metadata: organisations, year, uuids (datasets)
                         # organisations
                         organisations_str = None
+                        organisations_names_str = None
                         if 'organisationalUnits' in item:
                             organisations = []
+                            organisations_names = []
                             for organisation in item['organisationalUnits']:
                                 # contains external organisations as well
                                 organisations.append(organisation['uuid'])
+                                organisations_names.append(organisation['name']['text'][0]['value'])
                             organisations_str = '|'.join(organisations)
+                            organisations_names_str = '|'.join(organisations_names)
                         # year
                         pub_year = ''
                         epub_year = ''
@@ -63,6 +67,7 @@ def get_outputs(download, download_path, api_key, published_after='2022-01-01', 
                                          'pub_year': pub_year,
                                          'epub_year': epub_year,
                                          'organisations': organisations_str,
+                                         'organisations_names': organisations_names_str,
                                          'datasets': datasets_str})
 
     return metadata
