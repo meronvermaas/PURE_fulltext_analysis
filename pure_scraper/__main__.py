@@ -22,7 +22,7 @@ from pure_scraper.pdf_scraper import plot_keywords
                           'haskell', 'kotlin', 'visual basic', 'sql', 'matlab', 'excel', ['lua', 'programming'],
                           'ruby', ['bezanson', 'julia'], 'arcgis'),
                          ('bazis', 'hpc', 'high-performance computing', ['snellius', 'surf'], ['lisa', 'surf'],
-                          'peter stol', 'p. stol', 'itvo', 'diebert van rhijn', 'd. van rhijn', 'high-end computing')])
+                          'peter stol', 'p. stol', 'itvo', 'diebert van rhijn', 'd. van rhijn', 'high-end computing', 'nwo', 'erc')])
 def pure_text(**kwargs):
     if 'outdir' in kwargs:
         if not os.path.exists(kwargs.get('outdir')):
