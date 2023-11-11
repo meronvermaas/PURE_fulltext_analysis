@@ -1,6 +1,6 @@
 import requests
 
-url_ds = 'https://research.vu.nl/ws/api/522/datasets?'
+url_ds = 'https://research.vu.nl/ws/api/524/datasets?'
 
 
 def get_dataset_meta(uuid, api_key):

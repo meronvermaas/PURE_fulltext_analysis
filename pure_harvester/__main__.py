@@ -13,6 +13,11 @@ from pure_harvester.datasets_api import get_dataset_meta
 @click.argument('published_after', default='2022-01-01')
 @click.argument('outdir', default='output')
 def pure_data(**kwargs):
+    """
+    [PUBLISHED_AFTER] Harvest publications after date (default: published_after=2022-01-01)
+
+    [OUTDIR] Output directory name (default: outdir=output)
+    """
 
     if 'outdir' in kwargs:
         if not os.path.exists(kwargs.get('outdir')):

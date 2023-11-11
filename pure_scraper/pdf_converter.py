@@ -1,12 +1,13 @@
 import pdfplumber
 import pikepdf
-from pdfminer.pdfdocument import PDFEncryptionError
-from pdfminer.pdfparser import PDFSyntaxError
+from pdfminer.pdfdocument import PDFEncryptionError, PDFNoValidXRef
+from pdfminer.pdfparser import PDFSyntaxError, PSEOF
 import pandas as pd
+import copy
 import os
 
 
-def get_text(fulltext_download_path, affiliation=None):
+def get_text(fulltext_download_path, fulltext_output_path, affiliation=None):
     df = pd.read_csv(f'{fulltext_download_path}/merge.csv')
     df = df.drop_duplicates()
     df['paper_text'] = ""
@@ -30,7 +31,7 @@ def get_text(fulltext_download_path, affiliation=None):
                     pdf = pikepdf.open(os.path.join(fulltext_download_path, subdir, file))
                     pdf.save(os.path.join(fulltext_download_path, subdir, file[:-4] + '_unencrypted.pdf'))
                     pdf = pdfplumber.open(os.path.join(fulltext_download_path, subdir, file[:-4] + '_unencrypted.pdf'))
-                except PDFSyntaxError:
+                except (PDFSyntaxError, PDFNoValidXRef, PSEOF):
                     print('this PDF could not be read, skipping to next one',
                           os.path.join(fulltext_download_path, subdir, file))
                     failed_pdfs += 1
@@ -43,14 +44,22 @@ def get_text(fulltext_download_path, affiliation=None):
                     except:  # this should be made less broad
                         failed_pages += 1
                         single_page_text = ""
-                    all_text = all_text + ' ' + single_page_text
+                    # In some cases, a massive pdf might lead to memory issues
+                    # TODO write out in chunks, for now we will skip part of these
+                    try:
+                        all_text = all_text + ' ' + single_page_text
+                    except MemoryError:
+                        continue
                 pdf.close()
 
-        df.loc[df['uuid'] == subdir, 'paper_text'] = all_text
+        df2 = copy.deepcopy(df.loc[df['uuid'] == subdir])
+        df2['paper_text'] = all_text
+        if not os.path.isfile(f'{fulltext_output_path}/merge_text.csv'):
+            df2.to_csv(f'{fulltext_output_path}/merge_text.csv', mode='a', index=False, header=True, encoding="utf8")
+        else:
+            df2.to_csv(f'{fulltext_output_path}/merge_text.csv', mode='a', index=False, header=False, encoding="utf8")
         success_pdf += 1
 
     print('Imported ', success_pdf, ' PDFs successfully')
     print('Failed to import ', failed_pdfs, ' PDFs')
     print('Failed to read ', failed_pages, ' pages')
-
-    return df

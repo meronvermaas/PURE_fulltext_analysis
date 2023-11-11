@@ -15,15 +15,15 @@ from pure_scraper.pdf_scraper import plot_keywords
               help="Plot grouping by this parameter, e.g., pub_year or 'organisations_names'")
 @click.argument('indir', default='output')
 @click.argument('outdir', default='papertext_output')
-@click.argument('keywords', type=list,
-                default=[('github', 'gitlab', 'bitbucket', 'subversion', 'apache allura', 'gogs', 'gitea'),
-                         ('r core team', 'r-project', 'python', 'html', 'css', 'java', 'javascript', 'swift', 'c #',
-                          'c++', 'golang', 'php', 'typescript', 'stata', 'spss', 'scala', 'shell', 'powershell', 'perl',
-                          'haskell', 'kotlin', 'visual basic', 'sql', 'matlab', 'excel', ['lua', 'programming'],
-                          'ruby', ['bezanson', 'julia'], 'arcgis'),
-                         ('bazis', 'hpc', 'high-performance computing', ['snellius', 'surf'], ['lisa', 'surf'],
-                          'peter stol', 'p. stol', 'itvo', 'diebert van rhijn', 'd. van rhijn', 'high-end computing', 'nwo', 'erc')])
+@click.argument('keywords', default='keywords.txt')
 def pure_text(**kwargs):
+    """
+    [INDIR] Input directory name, which is the output from the pure_harvester (default: indir=output)
+
+    [OUTDIR] Output directory name (default: outdir=papertext_output)
+
+    [KEYWORDS] Textfile with a list [] keywords of interest. (default: keywords=keywords.txt)
+    """
     if 'outdir' in kwargs:
         if not os.path.exists(kwargs.get('outdir')):
             os.makedirs(kwargs.get('outdir'), exist_ok=True)
@@ -36,21 +36,20 @@ def pure_text(**kwargs):
         print(pd.unique(df['organisations_names']))
         return
 
-    if kwargs.get('text_scrape_only') and os.path.exists(f'{kwargs.get("outdir")}/merge_text.csv'):
-        full_text_papers = pd.read_csv(f'{kwargs.get("outdir")}/merge_text.csv')
-    else:
+    if not kwargs.get('text_scrape_only') and not os.path.exists(f'{kwargs.get("outdir")}/merge_text.csv'):
         # get metadata (and download publications)
-        full_text_papers = get_text(fulltext_download_path=kwargs.get('indir'),
-                                    affiliation=kwargs.get('affiliation'))
-        full_text_papers.to_csv(f'{kwargs.get("outdir")}/merge_text.csv', index=False)
-
+        get_text(fulltext_download_path=kwargs.get('indir'),
+                 fulltext_output_path=kwargs.get('outdir'),
+                 affiliation=kwargs.get('affiliation'))
+    keywords = eval(open(kwargs.get("keywords")).read())  # pickle.load(open(kwargs.get("keywords"), 'rb'))
+    full_text_papers = pd.read_csv(f'{kwargs.get("outdir")}/merge_text.csv')
     keywords_counted_papers = get_text_keywords(full_text_papers=full_text_papers,
-                                                keywords=kwargs.get("keywords"))
+                                                keywords=keywords)
     keywords_counted_papers.to_csv(f'{kwargs.get("outdir")}/keywords_in_text.csv', index=False)
 
     plot_keywords(outdir=kwargs.get("outdir"),
                   keywords_stats=keywords_counted_papers,
-                  keywords=kwargs.get("keywords"),
+                  keywords=keywords,
                   grouping_list=list(kwargs.get("grouping_list")))
 
 

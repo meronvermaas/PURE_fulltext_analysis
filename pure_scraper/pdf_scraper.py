@@ -49,14 +49,15 @@ def get_text_keywords(full_text_papers, keywords):
                         full_text_papers.loc[idx, column_name] = True
                         # search for links/presence of version control
                         # by checking .VERSIONCONTROL. and //VERSIONCONTROL using IN
-                        url_idx = 0
                         for token in full_text_papers['paper_text_tokenized'][idx]:
                             if ('.' + keyword + '.' in token) or ('//' + keyword in token):
-                                newcol_name = column_name + '_url_' + str(url_idx)
-                                if newcol_name not in full_text_papers.columns:
-                                    full_text_papers[newcol_name] = np.nan
-                                full_text_papers.loc[idx, newcol_name] = token
-                                url_idx += 1
+                                url_col_name = column_name + '_url'
+                                if url_col_name not in full_text_papers.columns:
+                                    full_text_papers[url_col_name] = np.empty((len(full_text_papers), 0)).tolist()
+                                if token[0:2] == '//':
+                                    token = token[2:]
+                                full_text_papers.loc[idx, url_col_name].append(token)
+
 
     # Check if papers with data_doi metadata is mentioned in paper
     full_text_papers['data_doi_in_text'] = False

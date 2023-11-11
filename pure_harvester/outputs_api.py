@@ -3,7 +3,7 @@ import json
 import os
 import math
 
-url_ro = 'https://research.vu.nl/ws/api/522/research-outputs?'
+url_ro = 'https://research.vu.nl/ws/api/524/research-outputs?'
 
 
 def get_outputs(download, download_path, api_key, published_after='2022-01-01', size=100, offset=0):
@@ -29,7 +29,8 @@ def get_outputs(download, download_path, api_key, published_after='2022-01-01', 
                             if path_length > 255:
                                 eversion["file"]["fileName"] = eversion["file"]["fileName"][path_length-255:]
                             # download file
-                            with open(f'{pub_path}/{eversion["file"]["fileName"]}', 'wb') as f:
+                            print(pub_path, eversion["file"]["fileName"], f'{pub_path}/{eversion["file"]["fileName"]}')
+                            with open(f'{pub_path}/{eversion["file"]["fileName"].rsplit("/", 1)[-1]}', 'wb') as f:
                                 f.write(req_url.content)
                         # metadata: organisations, year, uuids (datasets)
                         # organisations
