@@ -3,12 +3,11 @@ import json
 import os
 import math
 
-url_ro = 'https://research.vu.nl/ws/api/524/research-outputs?'
 
-
-def get_outputs(download, download_path, api_key, published_after='2022-01-01', size=100, offset=0):
+def get_outputs(download, download_path, api_key, pure_url, published_after='2022-01-01', size=100, offset=0):
     # get number of records and cycles
-    result = do_request(size, offset, api_key, published_after)
+    url_ro = pure_url+'research-outputs?'
+    result = do_request(size, offset, api_key, published_after, url_ro)
     no_records = (result['count'])
     cycles = (math.ceil(no_records / size))
     metadata = []
@@ -74,7 +73,7 @@ def get_outputs(download, download_path, api_key, published_after='2022-01-01', 
     return metadata
 
 
-def do_request(size, offset, api_key, published_after):
+def do_request(size, offset, api_key, published_after, url_ro):
     success = False
     retry = 0
     result = None

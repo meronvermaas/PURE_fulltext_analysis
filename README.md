@@ -32,6 +32,7 @@ Other options/arguments (e.g., ouput directory, published after a certain date) 
 ```
 python -m pure_harvester --help
 ```
+Note that the default PURE instance is from the VU. If you want to try another institute (not yet tested), the url can be adjusted.
 
 If you want to download the fulltext papers available on PURE, run:
 
@@ -60,7 +61,7 @@ If you want to rerun with a new set of keywords (but the same papers), run:
 python -m pure_scraper --text_scrape_only=True
 ```
 
-If your want to create different plots (without scraping the text, and for example some grouping by one of the columns the publication year):
+If your want to create different plots (without scraping the text, and for example some grouping by one of the columns, in this case the publication year):
 
 ```
 python -m pure_scraper --plot_only=True --grouping_list=pub_year

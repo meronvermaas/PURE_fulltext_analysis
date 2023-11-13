@@ -1,10 +1,9 @@
 import requests
 
-url_ds = 'https://research.vu.nl/ws/api/524/datasets?'
 
-
-def get_dataset_meta(uuid, api_key):
-    result = do_request(uuid, api_key)
+def get_dataset_meta(uuid, api_key, pure_url):
+    url_ds = pure_url+'datasets?'
+    result = do_request(uuid, api_key, url_ds)
     doi = None
     if result:
         item = result['items'][0]
@@ -14,7 +13,7 @@ def get_dataset_meta(uuid, api_key):
     return doi
 
 
-def do_request(uuid, api_key):
+def do_request(uuid, api_key,url_ds):
     success = False
     retry = 0
     result = None

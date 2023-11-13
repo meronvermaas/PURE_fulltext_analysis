@@ -11,11 +11,12 @@ from pure_harvester.datasets_api import get_dataset_meta
 @click.option("--download", default=False, type=bool, help="Download publications")
 @click.option("--key", prompt="Pure API key", help="Pure API key", hide_input=True)
 @click.argument('published_after', default='2022-01-01')
+@click.argument('pure_institute_url', default='https://research.vu.nl/ws/api/524/')
 @click.argument('outdir', default='output')
 def pure_data(**kwargs):
     """
     [PUBLISHED_AFTER] Harvest publications after date (default: published_after=2022-01-01)
-
+    [PURE_INSTITUTE_URL] Give the url of your PURE instance (default: pure_institute_url=https://research.vu.nl/ws/api/524/)
     [OUTDIR] Output directory name (default: outdir=output)
     """
 
@@ -26,6 +27,7 @@ def pure_data(**kwargs):
     metadata = get_outputs(download=kwargs.get('download'),
                            download_path=kwargs.get('outdir'),
                            api_key=kwargs.get('key'),
+                           pure_url=kwargs.get('pure_institute_url'),
                            published_after=kwargs.get('published_after'))
     with open(f'{kwargs.get("outdir")}/metadata.json', 'w') as f:
         f.write(json.dumps(metadata))
@@ -35,7 +37,7 @@ def pure_data(**kwargs):
         if pub['datasets']:
             pub_datasets = pub['datasets'].split('|')
             for dataset_uuid in pub_datasets:
-                doi = get_dataset_meta(dataset_uuid, api_key=kwargs.get('key'))
+                doi = get_dataset_meta(dataset_uuid, api_key=kwargs.get('key'), pure_url=kwargs.get('pure_institute_url'))
                 if doi:
                     datasets.append({
                         'pub_uuid': pub['uuid'],
