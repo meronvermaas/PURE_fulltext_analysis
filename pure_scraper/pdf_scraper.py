@@ -5,8 +5,7 @@ from nltk.tokenize import word_tokenize
 from nltk.text import Text
 
 
-def get_text_keywords(full_text_papers, keywords):
-
+def get_text_keywords(full_text_papers, keywords, fulltext_output_path):
     # fill papers that were not converted with '' so tokenize works for all rows
     full_text_papers.paper_text = full_text_papers.paper_text.fillna('')
     # tokenize all texts first (split in single words and remove punctuation)
@@ -58,17 +57,18 @@ def get_text_keywords(full_text_papers, keywords):
                                     token = token[2:]
                                 full_text_papers.loc[idx, url_col_name].append(token)
 
-
     # Check if papers with data_doi metadata is mentioned in paper
     full_text_papers['data_doi_in_text'] = False
     for idx in full_text_papers[full_text_papers.data_doi.notna()].index:
         if full_text_papers.iloc[idx].data_doi.lower() in full_text_papers.iloc[idx].paper_text.lower():
             full_text_papers.iloc[idx, -1] = True
 
-    #  remove raw pdf text from this dataframe
+    #  remove pdf text from this dataframe to make it a bit lighter
     full_text_papers.drop('paper_text', axis=1, inplace=True)
+    full_text_papers.drop('paper_text_tokenized', axis=1, inplace=True)
 
-    return full_text_papers
+    full_text_papers.to_csv(f'{fulltext_output_path}/keywords_in_text.csv', index=False)
+
 
 def plot_keywords(outdir, keywords_stats, keywords, grouping_list):
     # create dataframe with number of papers where keyword is mentioned for each group of keywords

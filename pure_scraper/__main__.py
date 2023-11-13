@@ -11,6 +11,7 @@ from pure_scraper.pdf_scraper import plot_keywords
 @click.option("--affiliation", default=None, type=str, help="Affiliation of interest, type --affiliation=? for options")
 @click.option("--text_scrape_only", default=False, type=bool, help="If the pdfs have been converted already, skip "
                                                                    "converting pdfs to save time, input True")
+@click.option("--plot_only", default=False, type=bool, help="If the pdfs have been scraped already, you can only plot")
 @click.option("--grouping_list", '-gl', default=None, multiple=True, type=str,
               help="Plot grouping by this parameter, e.g., pub_year or 'organisations_names'")
 @click.argument('indir', default='output')
@@ -36,16 +37,20 @@ def pure_text(**kwargs):
         print(pd.unique(df['organisations_names']))
         return
 
-    if not kwargs.get('text_scrape_only') and not os.path.exists(f'{kwargs.get("outdir")}/merge_text.csv'):
+    if (not kwargs.get('text_scrape_only') or not kwargs.get('plot_only')) and not os.path.exists(f'{kwargs.get("outdir")}/merge_text.csv'):
         # get metadata (and download publications)
         get_text(fulltext_download_path=kwargs.get('indir'),
                  fulltext_output_path=kwargs.get('outdir'),
                  affiliation=kwargs.get('affiliation'))
     keywords = eval(open(kwargs.get("keywords")).read())  # pickle.load(open(kwargs.get("keywords"), 'rb'))
-    full_text_papers = pd.read_csv(f'{kwargs.get("outdir")}/merge_text.csv')
-    keywords_counted_papers = get_text_keywords(full_text_papers=full_text_papers,
-                                                keywords=keywords)
-    keywords_counted_papers.to_csv(f'{kwargs.get("outdir")}/keywords_in_text.csv', index=False)
+
+    if not kwargs.get('plot_only') and not os.path.exists(f'{kwargs.get("outdir")}/keywords_in_text.csv'):
+        full_text_papers = pd.read_csv(f'{kwargs.get("outdir")}/merge_text.csv')
+        keywords_counted_papers = get_text_keywords(full_text_papers=full_text_papers,
+                                                    keywords=keywords,
+                                                    fulltext_output_path=kwargs.get("outdir"))
+    else:
+        keywords_counted_papers = pd.read_csv(f'{kwargs.get("outdir")}/keywords_in_text.csv')
 
     plot_keywords(outdir=kwargs.get("outdir"),
                   keywords_stats=keywords_counted_papers,
