@@ -10,6 +10,7 @@ After determing this, the repositories can be scanned via https://github.com/fai
 
 ## How to use
 
+### Setting up
 
 Make sure you are working from the top directory of the cloned repository.
 To install, run setup.py:
@@ -17,6 +18,8 @@ To install, run setup.py:
 ```
 python setup.py
 ```
+
+### Downloading fulltext PDFs from PURE
 
 If you just want to download a list of the fulltext papers, run:
 
@@ -42,6 +45,8 @@ python -m pure_harvester --download=True
 
 This might take a while and some memory (depending on the amount of papers).
 
+### Looking for keywords in the fulltext PDFs
+
 After you downloaded all the fulltext papers, you can search for keywords:
 
 ```
@@ -65,4 +70,33 @@ If your want to create different plots (without scraping the text, and for examp
 
 ```
 python -m pure_scraper --plot_only=True --grouping_list=pub_year
+```
+
+### Downloading collaborators from GitHub
+
+In the output from the scraper, there will be a list of github repositories that were mentioned in the papers.
+You can harvest GitHub API urls of all collaborators of each of these repositories by running:
+
+```
+python -m github_harvester PATH_TO_CSV_WITH_URLS OUTPUTPATH/FILE.json
+```
+
+Two more inputs are optional (but recommended to improve GitHub API rate limits). For more information you can type:
+
+```
+python -m github_harvester help
+```
+
+### Checking for affiliation (or something else)
+
+Now we can check if our university is mentioned in the github user's metadata:
+
+```
+python -m github_scraper OUTPUTPATH/FILE.json OUTPUTPATH/METADATAFILE.json None None KEYWORD1 KEYWORD2 KEYWORD3
+```
+
+The two empty inputs are optional (but recommended to improve GitHub API rate limits). For more information you can type:
+
+```
+python -m github_scraper help
 ```
