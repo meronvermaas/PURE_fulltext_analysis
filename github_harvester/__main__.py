@@ -7,6 +7,10 @@ import pandas as pd
 import requests
 from requests.auth import HTTPBasicAuth
 
+"""
+this is some info on myfunc
+
+"""
 
 # returns a list of contributor API URLs
 async def scrape_single_repo(owner, repo, github_username=None, github_key=None):
@@ -70,6 +74,11 @@ async def scrape_github(github_repos, github_username=None, github_key=None):
 # 3. From each contributor, save the API URL of that GitHub user which you can harvest later
 # 4. Append the aggregated data to a JSON file
 async def main():
+
+    if sys.argv[1] == 'help' or len(sys.argv)<2:
+        help(sys.modules['__main__'])
+        return
+
     csv_location = sys.argv[1]
     output_location = sys.argv[2]
     github_username = sys.argv[3] if len(sys.argv) >= 5 else None
