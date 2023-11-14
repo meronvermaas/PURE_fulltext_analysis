@@ -2,6 +2,7 @@ import asyncio
 import json
 import re
 import sys
+import pandas as pd
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -74,8 +75,8 @@ async def main():
     github_username = sys.argv[3] if len(sys.argv) >= 5 else None
     github_api_key = sys.argv[4] if len(sys.argv) >= 5 else None
 
-    with open(csv_location, 'r') as csvFile:
-        lines = csvFile.readlines()
+    lines = pd.read_csv(csv_location)
+    lines = lines['github_url']
 
     github_repo_regex = 'github\\.com/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/?'
 
