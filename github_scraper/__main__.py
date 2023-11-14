@@ -33,13 +33,18 @@ async def get_github_user_metadata(session, api_url, username, token):
             return None
 
 
-async def check_keywords_in_metadata(session, user_url, keywords, username, token):
+async def check_keywords_in_metadata(session, user_url, keywords, username, token, output_file_path):
     user_metadata = await get_github_user_metadata(session, user_url, username, token)
 
     if user_metadata is not None:
         result = {}
         for keyword in keywords:
             result[keyword] = check_keyword_in_metadata_sync(user_metadata, keyword)
+
+        # Append the metadata to the common JSON file
+        with open(output_file_path[:-5]+"user_results.json", 'a') as user_metadata_file:
+            json.dump({user_url: user_metadata}, user_metadata_file, indent=2)
+            user_metadata_file.write('\n')  # Add a newline for separating entries
 
         return result
     else:
@@ -70,7 +75,7 @@ def check_keyword_in_metadata_sync(metadata, keyword):
 # using the stats/contributors endpoint,
 # see https://docs.github.com/en/rest/metrics/statistics?apiVersion=2022-11-28#get-all-contributor-commit-activity
 # 3. From each contributor, save if the keyword occurs in the metadata of each contributor
-# 4. Write the aggregated data to a JSON file
+# 4. Write the aggregated data to 2 JSON files, one containing if keywords are present, one with the metadata
 async def main():
     if sys.argv[1] == 'help':
         help(sys.modules['__main__'])
@@ -94,7 +99,7 @@ async def main():
                 continue
             print(f"Checking repository: {repo}")
             for user_url in user_urls:
-                task = check_keywords_in_metadata(session, user_url, keywords, username, token)
+                task = check_keywords_in_metadata(session, user_url, keywords, username, token, output_file_path)
                 results[f"{repo}_{user_url}"] = await task
 
         # Write the results to a JSON file
