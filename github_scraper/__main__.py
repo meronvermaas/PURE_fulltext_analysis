@@ -77,7 +77,7 @@ def check_keyword_in_metadata_sync(metadata, keyword):
 # 3. From each contributor, save if the keyword occurs in the metadata of each contributor
 # 4. Write the aggregated data to 2 JSON files, one containing if keywords are present, one with the metadata
 async def main():
-    if sys.argv[1] == 'help':
+    if len(sys.argv) != 1 and sys.argv[1] == 'help':
         help(sys.modules['__main__'])
         return
 
