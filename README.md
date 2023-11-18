@@ -100,3 +100,8 @@ The two empty inputs are optional (but recommended to improve GitHub API rate li
 ```
 python -m github_scraper help
 ```
+
+Two output files will be created:
+
+- a .json for each collaborator indicating which keywords were found in the GitHub metadata
+- a [...]_user_metadata.json with the metadata of each collaborator (to be used in further analyses)

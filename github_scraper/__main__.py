@@ -42,9 +42,9 @@ async def check_keywords_in_metadata(session, user_url, keywords, username, toke
             result[keyword] = check_keyword_in_metadata_sync(user_metadata, keyword)
 
         # Append the metadata to the common JSON file
-        with open(output_file_path[:-5]+"user_results.json", 'a') as user_metadata_file:
+        with open(output_file_path[:-5] + "_user_metadata.json", 'a') as user_metadata_file:
             json.dump({user_url: user_metadata}, user_metadata_file, indent=2)
-            user_metadata_file.write('\n')  # Add a newline for separating entries
+            user_metadata_file.write(',\n')  # Add a comma and newline for separating entries
 
         return result
     else:
@@ -105,6 +105,16 @@ async def main():
         # Write the results to a JSON file
         with open(output_file_path, 'w') as output_file:
             json.dump(results, output_file, indent=2)
+
+        # Read the contents of the file and create a list
+        with open(output_file_path[:-5] + "_user_metadata.json", 'r') as user_metadata_file:
+            lines = user_metadata_file.readlines()
+
+        # Rewrite the file with proper list formatting
+        with open(output_file_path[:-5] + "_user_metadata.json", 'w') as user_metadata_file:
+            user_metadata_file.write("[\n")
+            user_metadata_file.writelines(lines[:-1])  # Skip the last comma
+            user_metadata_file.write("}]\n")
 
         print(f"Results written to: {output_file_path}")
 
