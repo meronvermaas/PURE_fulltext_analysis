@@ -14,12 +14,12 @@ def get_outputs(download, download_path, api_key, pure_url, published_after='202
 
     for r in range(cycles):
         offset += size
-        result = do_request(size, offset, api_key, published_after)
+        result = do_request(size, offset, api_key, published_after, url_ro)
         for count, item in enumerate(result['items']):
             if 'electronicVersions' in item:
                 for eversion in item['electronicVersions']:
                     if 'file' in eversion:
-                        if download:
+                        if download and 'fileURL' in eversion['file']:
                             req_url = requests.get(eversion['file']['fileURL'])
                             pub_path = os.path.join(download_path, item['uuid'])
                             os.makedirs(pub_path, exist_ok=True)
@@ -85,7 +85,26 @@ def do_request(size, offset, api_key, published_after, url_ro):
                                  data=data)
         if response.status_code == 200:
             success = True
-            result = response.json()
+
+            # Check if the response's content type is JSON
+            if response.headers.get('Content-Type') == 'application/json':
+                try:
+                    response_text = response.text
+                    decoder = json.JSONDecoder()
+                    pos = 0
+                    result, pos = decoder.raw_decode(response_text, pos)
+                    #result = response.json()
+                except requests.exceptions.JSONDecodeError as e:
+                    print("JSON decoding error:", e)
+                    #print("Response text:", response.text)
+                    with open("response_debug.txt", "w", encoding="utf-8") as file:
+                        file.write(response.text)
+                    result = []  # Or handle as appropriate
+            else:
+                print("Unexpected content type:", response.headers.get('Content-Type'))
+                result = []  # Or handle as appropriate
+
+            # result = response.json()
         else:
             retry += 1
             print('API error, retrying')
