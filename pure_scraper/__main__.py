@@ -44,13 +44,13 @@ def pure_text(**kwargs):
                  affiliation=kwargs.get('affiliation'))
     keywords = eval(open(kwargs.get("keywords")).read())  # pickle.load(open(kwargs.get("keywords"), 'rb'))
 
-    if not kwargs.get('plot_only') and not os.path.exists(f'{kwargs.get("outdir")}/keywords_in_text.csv'):
+    if not kwargs.get('plot_only') or not os.path.exists(f'{kwargs.get("outdir")}/keywords_in_text.csv'):
         full_text_papers = pd.read_csv(f'{kwargs.get("outdir")}/merge_text.csv')
-        keywords_counted_papers = get_text_keywords(full_text_papers=full_text_papers,
+        get_text_keywords(full_text_papers=full_text_papers,
                                                     keywords=keywords,
                                                     fulltext_output_path=kwargs.get("outdir"))
-    else:
-        keywords_counted_papers = pd.read_csv(f'{kwargs.get("outdir")}/keywords_in_text.csv')
+
+    keywords_counted_papers = pd.read_csv(f'{kwargs.get("outdir")}/keywords_in_text.csv')
 
     plot_keywords(outdir=kwargs.get("outdir"),
                   keywords_stats=keywords_counted_papers,
